@@ -1,4 +1,5 @@
-# Hotshot Scoreboard Algorithm
+## Description
+This pull request adds a function that calculates the scoreboard for a game of Hotshot.
 
 ## Assumptions
 - There are 10 rounds
@@ -16,7 +17,6 @@ In the last (10th) round, a heatcheck upgrade allows 2 bonus attempts for each r
 - Write a function to return a scorecard for a game of hotshot
 - Verify with automated tests that the function correctly generates the scorecard.
 
-
 ## Discrepancies
 - Prompt states: 
     > You can only earn **2 total points** from baskets made in the red spots **per round**. A round is forfeited and given a 0 score if you forget this rule and make more than **2 layups** in a round.
@@ -25,3 +25,19 @@ In the last (10th) round, a heatcheck upgrade allows 2 bonus attempts for each r
 
     It is unclear where the condition for a forfeited round is measured by points or number of made shots from a red spot.
     For example, during a round with heatcheck upgrade, a bonus shot may be scored from a red spot, totaling 3 points with only 1 layup. I went with the assumption that the number of shots made can't exceed 2 per round.
+
+## Testing:
+- Unit tests have been added to verify that the scoreboard is being calculated correctly.
+- It wasn't clear how extensive the tests needed to be.
+- Here are some potential test cases I though were out of scope for this assignment:
+ - Validate input data
+    - Check if all made shots are within attempted shots
+    - Check if made bonus shots are within allowed bonus shots (first calculate allowed bonus shots by checking for both upgrades)
+    - Check that each shot is valid (ie: green3 is invalid, black1 is invalid)
+    - Check that only made_shots, attempted_shots, and made_bonus_shots are present
+
+## Run tests:
+```
+npm install
+npm test
+```
