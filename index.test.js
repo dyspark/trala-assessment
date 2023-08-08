@@ -1,5 +1,6 @@
 const {
     getColorScore,
+    calculateRoundScore,
     scoreHotshotGame,
 } = require('./index');
 
@@ -11,6 +12,76 @@ describe('getColorScore', () => {
     it('should return the correct color', () => {
         const color = getColorScore('green1');
         expect(color).toBe('green');
+    });
+});
+
+describe('calculateRoundScore', () => {
+    it('should return 0 for more than 2 non-bonus shots made', () => {
+        const round = {
+            made_shots: ['red1', 'red1', 'red2'],
+            attempted_shots: ['red1', 'red1', 'red2'],
+            made_GOAT_shots: [],
+            made_heatcheck_shots: []
+        };
+        const score = calculateRoundScore(round, 1);
+        expect(score).toBe(0);
+    });
+
+    it('should return 0 for empty shots', () => {
+        const round = {
+            made_shots: [],
+            attempted_shots: [],
+            made_GOAT_shots: [],
+            made_heatcheck_shots: []
+        };
+        const score = calculateRoundScore(round, 1);
+        expect(score).toBe(0);
+    });
+
+    it('should count made heatcheck shots as triple points in rounds 1 through 9', () => {
+        const round = {
+            made_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1'],
+            attempted_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1'],
+            made_GOAT_shots: [],
+            made_heatcheck_shots: ['green1', 'yellow1', 'red1']
+        };
+        // 48 + 3(10) = 78
+        const score = calculateRoundScore(round, 5);
+        expect(score).toBe(78);
+    });
+
+    it('should count made heatcheck shots as double points in round 10', () => {
+        const round = {
+            made_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1'],
+            attempted_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1'],
+            made_GOAT_shots: [],
+            made_heatcheck_shots: ['green1', 'yellow1', 'red1']
+        };
+        // 48 + 2(10) = 68
+        const score = calculateRoundScore(round, 10);
+        expect(score).toBe(68);
+    });
+
+    it('should correctly calculate the score for mixed shots for rounds 1 through 9', () => {
+        const round = {
+            made_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1', 'gray1', 'gray2', 'blue1', 'blue2', 'red1', 'red2'],
+            attempted_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1', 'gray1', 'gray2', 'blue1', 'blue2', 'red1', 'red2'],
+            made_GOAT_shots: ['green1', 'green1', 'blue1'],
+            made_heatcheck_shots: ['green1', 'yellow1', 'red1']
+        };
+        const score = calculateRoundScore(round, 1);
+        expect(score).toBe(102);
+    });
+
+    it('should correctly calculate the score for mixed shots for round 10', () => {
+        const round = {
+            made_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1', 'gray1', 'gray2', 'blue1', 'blue2', 'red1', 'red2'],
+            attempted_shots: ['green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'green1', 'yellow1', 'yellow1', 'gray1', 'gray2', 'blue1', 'blue2', 'red1', 'red2'],
+            made_GOAT_shots: ['green1', 'green1', 'blue1'],
+            made_heatcheck_shots: ['green1', 'yellow1', 'red1']
+        };
+        const score = calculateRoundScore(round, 10);
+        expect(score).toBe(92);
     });
 });
 
@@ -159,13 +230,3 @@ describe('scoreHotshotGame', () => {
         expect(scoreHotshotGame(validGame2)).toEqual([89, 101, 136, 148, 155, 155, 170, 180, 194, 209]);
     });
 });
-
-
-/*
-Further test cases:
-- Validate input data
-    - Check if all made shots are within attempted shots
-    - Check if made bonus shots are within allowed bonus shots (first calculate allowed bonus shots by checking for both upgrades)
-    - Check that each shot is valid (ie: green3 is invalid, black1 is invalid)
-    - Check that only made_shots, attempted_shots, and made_bonus_shots are present
-*/
